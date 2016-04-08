@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8"></head>
+		<title>an_go admin</title>
+		<script type="text/javascript" src="jquery/dist/jquery.min.js"></script>
+		<script type="text/javascript" src="jquery-ui/jquery-ui.js"></script>
+		<script type="text/javascript" src="bootstrap/dist/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="react/dist/react.js"></script>
+		<script type="text/javascript" src="react-dom/dist/react-dom.min.js"></script>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="bootstrap/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="styles.css">
+	</head>
+	<body>
+		<div id="content"></div>
+		<script type="text/babel">
+
+			var DATA = [
+			  {
+			    "namespace" : "345_Park",
+			    "jobs" : [
+			      {
+			        "name": "morning-startup",
+			        "runs": [
+			          {
+			            "frequency" : {
+			              "interval" : 30,
+			              "unit" : "minute"
+			            },
+			            "unitRanges" : {
+			              "hour" : {
+			              "start" : 1,
+			              "end" : 4
+			            },
+			            "dayOfWeek" : {
+			              "start" : "mOn",
+			              "end" : 5
+			            }
+			          }
+			        },
+			        {
+			          "frequency" : {
+			            "interval" : 30,
+			            "unit" : "minute"
+			          },
+			          "unitRanges" : {
+			            "hour" : {
+			                "start" : 1,
+			                "end" : 4
+			            },
+			            "dayOfWeek" : {
+			                "start" : "mOn",
+			                "end" : 5
+			            }
+			          }
+			      }
+			    ]
+			},
+			{
+			    "name": "benchmarks",
+			    "runs": [
+			        {
+			            "frequency" : {
+			                "interval" : 30,
+			                "unit" : "minute"
+			            },
+			            "unitRanges" : {
+			                "hour" : {
+			                    "start" : 1,
+			                    "end" : 4
+			                },
+			                "dayOfWeek" : {
+			                    "start" : "mOn",
+			                    "end" : 5
+			                }
+			            }
+			        }
+			    ]
+			}
+			]
+			},
+			{
+			"namespace" : "355_Lex",
+			"jobs" : [
+			{
+			    "name": "morning-startup",
+			    "runs": [
+			        {
+			            "frequency" : {
+			                "interval" : 30,
+			                "unit" : "minute"
+			            },
+			            "unitRanges" : {
+			                "hour" : {
+			                    "start" : 1,
+			                    "end" : 4
+			                },
+			                "dayOfWeek" : {
+			                    "start" : "mOn",
+			                    "end" : 5
+			                }
+			            }
+			        }
+			    ]
+			},
+			{
+			    "name": "benchmarks",
+			    "runs": [
+			        {
+			            "frequency" : {
+			                "interval" : 30,
+			                "unit" : "minute"
+			            },
+			            "unitRanges" : {
+			                "hour" : {
+			                    "start" : 1,
+			                    "end" : 4
+			                },
+			                "dayOfWeek" : {
+			                    "start" : "mOn",
+			                    "end" : 5
+			                }
+			            }
+			          }
+			        ]
+			      }
+			    ]
+			  }
+			];
+
+			// Master Table Components
+
+			var BuildingSearch = React.createClass({
+				render: function() {
+					return (
+						<div className="input-group">
+				      <input type="text" className="form-control" placeholder="Filter By Building Name" />
+				    </div>
+					);
+				}
+			});
+
+			var JobSearch = React.createClass({
+				render: function() {
+					return (
+						<div className="input-group">
+				      <input type="text" className="form-control" placeholder="Filter By Job Name" />
+				    </div>
+					);
+				}
+			});
+
+			var AddBuilding = React.createClass({
+				render: function() {
+					return (
+						<div>
+							<label for="add-building">Add a Building</label>
+							<div className="input-group">
+					      <input type="text" id="add-building" placeholder="Type building name" />
+					      <span class="input-group-btn">
+					        <button className="btn btn-info" type="button">Add!</button>
+					      </span>
+					    </div>
+				    </div>
+					);
+				}
+			});
+
+			var TableRowHead = React.createClass({
+				render: function() {
+					return (
+						<tr>
+							<th>Building</th>
+							<th>Job</th>
+							<th>Minutes</th>
+							<th>Hours</th>
+							<th>Day/Month</th>
+							<th>Month</th>
+							<th>Day/Week</th>
+							<th>Frequency</th>
+						</tr>
+					);
+				}
+			});
+
+			var TableRow = React.createClass({
+				render: function() {
+					return (
+						<tr>
+							<td>{this.props.namespace}</td>
+							<td>{this.props.job}</td>
+							<td>{this.props.minute ? parseUnitRange(this.props.minute) : "All"}</td>
+							<td>{this.props.hour ? parseUnitRange(this.props.hour) : "All"}</td>
+							<td>{this.props.dayOfMonth ? parseUnitRange(this.props.dayOfMonth) : "All"}</td>
+							<td>{this.props.month ? parseUnitRange(this.props.month) : "All"}</td>
+							<td>{this.props.dayOfWeek ? parseUnitRange(this.props.dayOfWeek) : "All"}</td>
+							<td>{parseRunFrequency(this.props.frequency)}</td>
+						</tr>
+					);
+				}
+			});
+
+			var BuildingsTable = React.createClass({
+		    render: function() {
+
+		    	var rows = [];
+		    	this.props.buildings.forEach(function(building, i) {
+		    		building.jobs.forEach(function(job, j) {
+		    			job.runs.forEach(function(run, k) {
+		    				rows.push(<TableRow
+		    					namespace = {building.namespace}
+		    					job = {job.name}
+		    					job = {job.name}
+		    					minute = {run.unitRanges.minute}
+		    					hour = {run.unitRanges.hour}
+		    					dayOfMonth = {run.unitRanges.dayOfMonth}
+		    					month = {run.unitRanges.month}
+		    					dayOfWeek = {run.unitRanges.dayOfWeek}
+		    					frequency = {run.frequency}
+		    					key = {i.toString() + j.toString() + k.toString()}
+		    				/>)
+		    			});
+		    		});
+		    	});
+
+		    	return (
+	      		<div className="buildingsTable">
+	        		<table>
+	        			<thead>
+	        				<TableRowHead />
+	        			</thead>
+	        			<tbody>
+	        				{rows}
+	        			</tbody>
+	        		</table>
+	      		</div>
+		    	);
+		  	}
+			});
+
+			var FilterableBuildingsTable = React.createClass({
+				render: function() {
+					return (
+						<div className="container">
+							<h1>All Buildings and Scheduled Analytics Jobs</h1>
+							<AddBuilding />
+							<BuildingSearch />
+							<JobSearch />
+							<BuildingsTable buildings = {this.props.buildings} />
+						</div>
+					);
+				}
+			});
+
+
+			// Single Building Components
+			var Building = React.createClass({
+				render: function() {
+
+					var jobs = [];
+					this.props.building.jobs.forEach(function(job) {
+						jobs.push(<Job job={job} />);
+					});
+
+					return (
+						<div>
+							<h2>{this.props.building.namespace}</h2>
+							{jobs}
+						</div>
+					);
+				}
+			});
+
+			var Job = React.createClass({
+				render: function() {
+
+					var runs = [];
+					this.props.job.runs.forEach(function(run) {
+						runs.push(</Run run={run} />);
+					});
+
+					return (
+						<div>
+							<h3>{this.props.job.name}</h3>
+							{runs}
+						</div>
+					);
+				}
+			});
+
+			var Run = React.createClass({
+				render: function() {
+					return (
+						<div>
+							<div>
+								
+							</div>
+						</div>
+					);
+				}
+			});
+
+
+			ReactDOM.render(
+			  <FilterableBuildingsTable buildings = {DATA} />,
+			  document.getElementById('content')
+			);
+
+			function parseUnitRange(range) {
+				return range.start.toString() + " - " + range.end.toString();
+			}
+
+			function parseRunFrequency(freqObj) {
+				return freqObj.interval.toString() + " " + freqObj.unit;
+			}
+			
+		</script>
+	</body>
+</html>

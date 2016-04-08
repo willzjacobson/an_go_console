@@ -1,0 +1,32 @@
+{
+  "name": "an_go_console",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willzjacobson/an_go_console.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/willzjacobson/an_go_console/issues"
+  },
+  "homepage": "https://github.com/willzjacobson/an_go_console#readme",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "bootstrap": "^3.3.6",
+    "chalk": "^1.1.3",
+    "express": "^4.13.4",
+    "jquery": "^2.2.3",
+    "jquery-ui": "^1.10.5",
+    "nodemon": "^1.9.1",
+    "path": "^0.12.7",
+    "react": "^15.0.0",
+    "react-dom": "^15.0.0"
+  }
+}

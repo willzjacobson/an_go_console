@@ -1,0 +1,113 @@
+var DATA = [
+  {
+    "namespace" : "345_Park",
+    "jobs" : [
+      {
+        "name": "morning-startup",
+        "runs": [
+          {
+            "frequency" : {
+              "interval" : 30,
+              "unit" : "minute"
+            },
+            "unitRanges" : {
+              "hour" : {
+              "start" : 1,
+              "end" : 4
+            },
+            "dayOfWeek" : {
+              "start" : "mOn",
+              "end" : 5
+            }
+          }
+        },
+        {
+          "frequency" : {
+            "interval" : 30,
+            "unit" : "minute"
+          },
+          "unitRanges" : {
+            "hour" : {
+                "start" : 1,
+                "end" : 4
+            },
+            "dayOfWeek" : {
+                "start" : "mOn",
+                "end" : 5
+            }
+          }
+      }
+    ]
+},
+{
+    "name": "benchmarks",
+    "runs": [
+        {
+            "frequency" : {
+                "interval" : 30,
+                "unit" : "minute"
+            },
+            "unitRanges" : {
+                "hour" : {
+                    "start" : 1,
+                    "end" : 4
+                },
+                "dayOfWeek" : {
+                    "start" : "mOn",
+                    "end" : 5
+                }
+            }
+        }
+    ]
+}
+]
+},
+{
+"namespace" : "355_Lex",
+"jobs" : [
+{
+    "name": "morning-startup",
+    "runs": [
+        {
+            "frequency" : {
+                "interval" : 30,
+                "unit" : "minute"
+            },
+            "unitRanges" : {
+                "hour" : {
+                    "start" : 1,
+                    "end" : 4
+                },
+                "dayOfWeek" : {
+                    "start" : "mOn",
+                    "end" : 5
+                }
+            }
+        }
+    ]
+},
+{
+    "name": "benchmarks",
+    "runs": [
+        {
+            "frequency" : {
+                "interval" : 30,
+                "unit" : "minute"
+            },
+            "unitRanges" : {
+                "hour" : {
+                    "start" : 1,
+                    "end" : 4
+                },
+                "dayOfWeek" : {
+                    "start" : "mOn",
+                    "end" : 5
+                }
+            }
+          }
+        ]
+      }
+    ]
+  }
+];
+
