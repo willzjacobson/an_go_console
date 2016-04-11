@@ -129,6 +129,77 @@
 			    ]
 			  }
 			];
+			var BUILDING = {
+			"namespace" : "355_Lex",
+			"jobs" : [
+			{
+			    "name": "morning-startup",
+			    "runs": [
+			        {
+			            "frequency" : {
+			                "interval" : 30,
+			                "unit" : "minute"
+			            },
+			            "unitRanges" : {
+			                "minute" : {
+			                    "start" : 1,
+			                    "end" : 4
+			                },
+			                "hour" : {
+			                    "start" : 1,
+			                    "end" : 4
+			                },
+			                "dayOfWeek" : {
+			                    "start" : 1,
+			                    "end" : 5
+			                },
+			                "month" : {
+			                    "start" : 2,
+			                    "end" : 6
+			                },
+			                "dayOfMonth" : {
+			                    "start" : 1,
+			                    "end" : 4
+			                }
+			            }
+			        }
+			    ]
+			},
+			{
+			    "name": "benchmarks",
+			    "runs": [
+			        {
+			            "frequency" : {
+			                "interval" : 30,
+			                "unit" : "minute"
+			            },
+			            "unitRanges" : {
+			                "minute" : {
+			                    "start" : 1,
+			                    "end" : 4
+			                },
+			                "hour" : {
+			                    "start" : 1,
+			                    "end" : 4
+			                },
+			                "dayOfWeek" : {
+			                    "start" : 1,
+			                    "end" : 5
+			                },
+			                "month" : {
+			                    "start" : 2,
+			                    "end" : 6
+			                },
+			                "dayOfMonth" : {
+			                    "start" : 1,
+			                    "end" : 4
+			                }
+			            }
+			          }
+			        ]
+			      }
+			    ]
+			  };
 
 			// Master Table Components
 
@@ -260,8 +331,8 @@
 				render: function() {
 
 					var jobs = [];
-					this.props.building.jobs.forEach(function(job) {
-						jobs.push(<Job job={job} />);
+					this.props.building.jobs.forEach(function(job, i) {
+						jobs.push(<Job job={job} key={i} />);
 					});
 
 					return (
@@ -277,8 +348,8 @@
 				render: function() {
 
 					var runs = [];
-					this.props.job.runs.forEach(function(run) {
-						runs.push(</Run run={run} />);
+					this.props.job.runs.forEach(function(run, i) {
+						runs.push(<Run run={run} key={i} />);
 					});
 
 					return (
@@ -292,10 +363,28 @@
 
 			var Run = React.createClass({
 				render: function() {
+					var ranges = this.props.run.unitRanges;
+					var minuteStart = ranges.minute.start ? ranges.minute.start.toString() : "0";
+					var minuteEnd = ranges.minute.end ? ranges.minute.end.toString() : "0";
+					var hourStart = ranges.hour.start ? ranges.hour.start.toString() : "0";
+					var hourEnd = ranges.hour.end ? ranges.hour.end.toString() : "23";
+					var dayOfMonthStart = ranges.dayOfMonth.start ? ranges.dayOfMonth.start.toString() : "0";
+					var dayOfMonthEnd = ranges.dayOfMonth.end ? ranges.dayOfMonth.end.toString() : "31";
+					var monthStart = ranges.month.start ? ranges.month.start.toString() : "0";
+					var monthEnd = ranges.month.end ? ranges.month.end.toString() : "11";
+					var dayOfWeekStart = ranges.dayOfWeek.start ? ranges.dayOfWeek.start.toString() : "0";
+					var dayOfWeekEnd = ranges.dayOfWeek.end ? ranges.dayOfWeek.end.toString() : "6";
+					var frequency = this.props.run.frequency.interval ? this.props.run.frequency.interval : "";
+
 					return (
 						<div>
 							<div>
-								
+								<span>Minute: <DropDown min="0" max="59" value={minuteStart} /> to <DropDown min="0" max="59" value={minuteEnd} /> Every <DropDown min="1" max="59" freq={true} value={frequency} /> </span>
+								<span>Hour: <DropDown min="0" max="23" value={hourStart} /> to <DropDown min="0" max="23" value={hourEnd} /></span>
+								<span>Day/Month: <DropDown min="0" max="31" value={dayOfMonthStart} /> to <DropDown min="0" max="31" value={dayOfMonthEnd} /></span>
+								<span>Month: <DropDown min="0" max="11" value={monthStart} /> to <DropDown min="0" max="11" value={monthEnd} /></span>
+								<span>Day/Week: <DropDown min="0" max="6" value={dayOfWeekStart} /> to <DropDown min="0" max="6" value={dayOfWeekEnd} /></span>
+								<button className="btn btn-default">X</button>
 							</div>
 						</div>
 					);
@@ -303,8 +392,35 @@
 			});
 
 
+			var DropDown = React.createClass({
+				render: function() {
+
+					var options = [];
+					if (this.props.freq) options.push(<DropdownOption val={""} key={"--"} />)
+					for (var i = this.props.min; i <= this.props.max; i++) {
+						options.push(<DropdownOption desiredVal={this.props.value} val={i.toString()} key={i} />)
+					}
+
+					return (
+						<select>
+							{options}
+						</select>
+					);
+				}
+			});
+
+			var DropdownOption = React.createClass({
+				render: function() {
+					var toReturn = (this.props.val==this.props.desiredVal) ? <option selected="selected">{this.props.val}</option> : <option>{this.props.val}</option>;
+					return toReturn;
+				}
+			});
+
 			ReactDOM.render(
-			  <FilterableBuildingsTable buildings = {DATA} />,
+				<div>
+				<Building building={BUILDING} />
+			  <FilterableBuildingsTable buildings = {DATA} />
+			  </div>,
 			  document.getElementById('content')
 			);
 
