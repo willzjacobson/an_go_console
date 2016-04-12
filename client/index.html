@@ -159,7 +159,6 @@
 
 			var SingleBuilding = React.createClass({
 				saveBuilding: function() {
-				console.log("yayyy", this.props.building)
 					this.props.handleUpdateBuilding(this.props.building.namespace);
 				},
 				render: function() {
@@ -179,7 +178,7 @@
 							<h2>{namespace}</h2>
 							{jobs}
 							<AddJob building={this.props.building} addJob={this.props.addJob} />
-							<button onClick={this.saveBuilding}>Update Building Schedule</button>
+							<button onClick={this.saveBuilding}>Update Building</button>
 						</div>
 					);
 				}
@@ -189,24 +188,28 @@
 				getInitialState: function() {
 					return {value:"select"};
 				},
-				change: function(e) {
+				onChange: function(e) {
 					this.setState({value: e.target.value});
 				},
 				submit: function(e) {
 					e.preventDefault();
 					if (this.props.building.jobs) {
 						for (var i = 0; i < this.props.building.jobs.length; i++) {
-							if (this.props.building.jobs[i].name == this.state.value) return;
+							if (this.props.building.jobs[i].name == this.state.value) {
+								this.setState({value: "select"});
+								return;
+							}
 						}
 					}
 					this.props.addJob(this.state.value);
+					this.setState({value: "select"});
 				},
 				render: function() {
 					if (this.props.building && !this.props.building.jobs || this.props.building.jobs && this.props.building.jobs.length < 2) {
 						return (
 							<form onSubmit={this.submit}>
 								<label for="select-job">Add a New Job</label>
-								<select id="select-job" value={this.state.value} onChange={this.change}>
+								<select id="select-job" value={this.state.value} onChange={this.onChange}>
 									<option value="select">select</option>
 									<option value="morning-startup">morning-startup</option>
 									<option value="benchmarks">benchmarks</option>
@@ -214,7 +217,7 @@
 								<input type="submit" value="Create Job" />
 							</form>
 						);
-					} else return <span>got all the jobs already</span>
+					} else return <span></span>
 				}
 			});
 
@@ -238,8 +241,6 @@
 				changeRun: function(field, subfield, newValue) {
 					var updatedRun = this.props.run;
 					updatedRun[field][subfield] = newValue;
-					console.log("Props", this.props)
-					console.log('fun shitttt!: ', this.props.jobInd, this.props.runInd, updatedRun)
 					this.props.handleRunChange(this.props.jobInd, this.props.runInd, updatedRun);
 				},
 				removeRun: function() {
@@ -423,7 +424,9 @@
 							}}]
 						};
 					if (this.state.building.jobs) {
-						this.setState({building: this.state.building.jobs.push(newJob)});
+						var updatedBuilding = this.state.building;
+						updatedBuilding.jobs.push(newJob);
+						this.setState({building: updatedBuilding});
 					} else {
 						var theBuilding = this.state.building;
 						theBuilding.jobs = [newJob];
@@ -431,12 +434,10 @@
 					}
 				},
 				handleRunChange: function(jobInd, runInd, newValue) {
-				console.log("gottem", jobInd, runInd, newValue)
 					var updatedBuilding = this.state.building;
 					updatedBuilding.jobs[jobInd].runs[runInd] = newValue;
 					this.setState({building: updatedBuilding});
 					var self = this;
-					setTimeout(function(){console.log("SELFSTATEBUILD ",self.state.building)}, 2000);
 				},
 				render: function() {
 					return (
