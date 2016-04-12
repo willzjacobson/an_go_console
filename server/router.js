@@ -24,18 +24,19 @@ router.post('/', function(req, res, next) {
 });
 
 // Couldn't get update to work, so deleting then inserting new doc (_id will change)
-router.put('/:buildingId', function(req, res, next) {
+router.put('/:namespace', function(req, res, next) {
+	req.body._id = new mongodb.ObjectID(req.body._id);
 	dbProm.then(function(db) {
-		db.collection('buildings').update({_id: new mongodb.ObjectID(req.params.buildingId)}, req.body, {new:true, w:1}, function(err, result) {
+		db.collection('buildings').update({namespace: req.params.namespace}, req.body, {new:true, w:1}, function(err, result) {
 			if (err) throw err;
 			res.json(result);
 		});
 	});
 });
 
-router.delete('/:buildingId', function(req, res, next) {
+router.delete('/:namespace', function(req, res, next) {
 	dbProm.then(function(db) {
-		db.collection('buildings').deleteOne({_id: new mongodb.ObjectID(req.params.buildingId)}, function(err, object) {
+		db.collection('buildings').deleteOne({namespace: req.params.namespace}, function(err, object) {
 			if (err) throw err;
 			res.send('Doc deleted');
 		});

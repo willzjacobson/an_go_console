@@ -10,7 +10,6 @@ var DATA = [
               "interval" : 30,
               "unit" : "minute"
             },
-            "unitRanges" : {
               "hour" : {
               "start" : 1,
               "end" : 4
@@ -19,14 +18,12 @@ var DATA = [
               "start" : "mOn",
               "end" : 5
             }
-          }
-        },
+          },
         {
           "frequency" : {
             "interval" : 30,
             "unit" : "minute"
           },
-          "unitRanges" : {
             "hour" : {
                 "start" : 1,
                 "end" : 4
@@ -36,7 +33,6 @@ var DATA = [
                 "end" : 5
             }
           }
-      }
     ]
 },
 {
@@ -47,7 +43,6 @@ var DATA = [
                 "interval" : 30,
                 "unit" : "minute"
             },
-            "unitRanges" : {
                 "hour" : {
                     "start" : 1,
                     "end" : 4
@@ -57,7 +52,6 @@ var DATA = [
                     "end" : 5
                 }
             }
-        }
     ]
 }
 ]
@@ -73,7 +67,6 @@ var DATA = [
                 "interval" : 30,
                 "unit" : "minute"
             },
-            "unitRanges" : {
                 "hour" : {
                     "start" : 1,
                     "end" : 4
@@ -83,7 +76,6 @@ var DATA = [
                     "end" : 5
                 }
             }
-        }
     ]
 },
 {
@@ -94,7 +86,6 @@ var DATA = [
                 "interval" : 30,
                 "unit" : "minute"
             },
-            "unitRanges" : {
                 "hour" : {
                     "start" : 1,
                     "end" : 4
@@ -104,7 +95,6 @@ var DATA = [
                     "end" : 5
                 }
             }
-          }
         ]
       }
     ]

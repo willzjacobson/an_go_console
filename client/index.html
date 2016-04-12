@@ -17,14 +17,14 @@
 		<div id="content"></div>
 		<script type="text/babel">
 
-			// Master Table Components
+			// MASTER TABLE COMPONENTS
 
 			var BuildingSearch = React.createClass({
 				render: function() {
 					return (
 						<div className="input-group">
-				      <input type="text" className="form-control" placeholder="Filter By Building Name" />
-				    </div>
+				    		<input type="text" className="form-control" placeholder="Filter By Building Name" />
+				    	</div>
 					);
 				}
 			});
@@ -56,12 +56,12 @@
 				render: function() {
 					return (
 						<form className="addBuildingForm" onSubmit={this.handleSubmit}>
-							<label for="add-building">Add a Building</label>
+							<label for="add-building">Add Building</label>
 						    <input 
 						    	type="text" id="add-building" placeholder="Type building name" 
 						    	value={this.state.buildingName} onChange={this.handleChange}
 						    />
-						    <input value="Add" type="submit" />
+						    <input value="Find or Add" type="submit" />
 					    </form>
 					);
 				}
@@ -90,11 +90,11 @@
 						<tr>
 							<td>{this.props.namespace}</td>
 							<td>{this.props.job}</td>
-							<td>{this.props.minute ? parseUnitRange(this.props.minute) : "All"}</td>
-							<td>{this.props.hour ? parseUnitRange(this.props.hour) : "All"}</td>
-							<td>{this.props.dayOfMonth ? parseUnitRange(this.props.dayOfMonth) : "All"}</td>
-							<td>{this.props.month ? parseUnitRange(this.props.month) : "All"}</td>
-							<td>{this.props.dayOfWeek ? parseUnitRange(this.props.dayOfWeek) : "All"}</td>
+							<td>{parseUnitRange(this.props.minute)}</td>
+							<td>{parseUnitRange(this.props.hour)}</td>
+							<td>{parseUnitRange(this.props.dayOfMonth)}</td>
+							<td>{parseUnitRange(this.props.month)}</td>
+							<td>{parseUnitRange(this.props.dayOfWeek)}</td>
 							<td>{parseRunFrequency(this.props.frequency)}</td>
 						</tr>
 					);
@@ -112,12 +112,11 @@
 				    				rows.push(<TableRow
 				    					namespace = {building.namespace}
 				    					job = {job.name}
-				    					job = {job.name}
-				    					minute = {run.unitRanges.minute}
-				    					hour = {run.unitRanges.hour}
-				    					dayOfMonth = {run.unitRanges.dayOfMonth}
-				    					month = {run.unitRanges.month}
-				    					dayOfWeek = {run.unitRanges.dayOfWeek}
+				    					minute = {run.minute}
+				    					hour = {run.hour}
+				    					dayOfMonth = {run.dayOfMonth}
+				    					month = {run.month}
+				    					dayOfWeek = {run.dayOfWeek}
 				    					frequency = {run.frequency}
 				    					key = {i.toString() + j.toString() + k.toString()}
 				    				/>)
@@ -126,7 +125,6 @@
 			    		});
 		    		}
 		    	});
-
 		    	return (
 	      		<div className="buildingsTable">
 	        		<table>
@@ -157,17 +155,22 @@
 			});
 
 
-			// Single Building Components
-			var SingleBuilding = React.createClass({
-				render: function() {
+			// SINGLE BUILDING COMPONENTS
 
+			var SingleBuilding = React.createClass({
+				saveBuilding: function() {
+				console.log("yayyy", this.props.building)
+					this.props.handleUpdateBuilding(this.props.building.namespace);
+				},
+				render: function() {
 					var jobs = [];
 					var namespace = "No Building Info";
 					if (this.props.building) {
 						namespace = this.props.building.namespace;
 						if (this.props.building.jobs && this.props.building.jobs.length) {
+							var self = this;
 							this.props.building.jobs.forEach(function(job, i) {
-								jobs.push(<Job job={job} key={i} />);
+								jobs.push(<Job job={job} key={i} jobInd={i} handleRunChange={self.props.handleRunChange} />);
 							});
 						}	
 					}
@@ -175,7 +178,8 @@
 						<div className="container">
 							<h2>{namespace}</h2>
 							{jobs}
-							<AddJob building={this.props.building} />
+							<AddJob building={this.props.building} addJob={this.props.addJob} />
+							<button onClick={this.saveBuilding}>Update Building Schedule</button>
 						</div>
 					);
 				}
@@ -190,19 +194,19 @@
 				},
 				submit: function(e) {
 					e.preventDefault();
-					// Propogate up to WholeThing to push in new job of type x with a new run (straight json), and updates state.building
-					// hook up so changing run info changes state
-					// add 'add run' button to add a new run for this job
-					// make so save button sends post to update buildings, and switches view
-
-					console.log('creating job');
+					if (this.props.building.jobs) {
+						for (var i = 0; i < this.props.building.jobs.length; i++) {
+							if (this.props.building.jobs[i].name == this.state.value) return;
+						}
+					}
+					this.props.addJob(this.state.value);
 				},
 				render: function() {
 					if (this.props.building && !this.props.building.jobs || this.props.building.jobs && this.props.building.jobs.length < 2) {
 						return (
 							<form onSubmit={this.submit}>
-								<label for="select-job">Select a Job</label>
-								<select id="select-job" value="this.state.value" onChange={this.change}>
+								<label for="select-job">Add a New Job</label>
+								<select id="select-job" value={this.state.value} onChange={this.change}>
 									<option value="select">select</option>
 									<option value="morning-startup">morning-startup</option>
 									<option value="benchmarks">benchmarks</option>
@@ -210,15 +214,16 @@
 								<input type="submit" value="Create Job" />
 							</form>
 						);
-					} else return <span></span>
+					} else return <span>got all the jobs already</span>
 				}
 			});
 
 			var Job = React.createClass({
 				render: function() {
 					var runs = [];
+					var self = this;
 					this.props.job.runs.forEach(function(run, i) {
-						runs.push(<Run run={run} key={i} />);
+						runs.push(<Run jobInd={self.props.jobInd} run={run} key={i} runInd={i} handleRunChange={self.props.handleRunChange} />);
 					});
 					return (
 						<div>
@@ -230,47 +235,84 @@
 			});
 
 			var Run = React.createClass({
+				changeRun: function(field, subfield, newValue) {
+					var updatedRun = this.props.run;
+					updatedRun[field][subfield] = newValue;
+					console.log("Props", this.props)
+					console.log('fun shitttt!: ', this.props.jobInd, this.props.runInd, updatedRun)
+					this.props.handleRunChange(this.props.jobInd, this.props.runInd, updatedRun);
+				},
+				removeRun: function() {
+					// remove specified run from state.building
+				},
+				addRun: function() {
+					// add run to job x in state.building
+				},
 				render: function() {
-					var ranges = this.props.run.unitRanges;
-					var minuteStart = ranges.minute.start ? ranges.minute.start.toString() : "0";
-					var minuteEnd = ranges.minute.end ? ranges.minute.end.toString() : "0";
-					var hourStart = ranges.hour.start ? ranges.hour.start.toString() : "0";
-					var hourEnd = ranges.hour.end ? ranges.hour.end.toString() : "23";
-					var dayOfMonthStart = ranges.dayOfMonth.start ? ranges.dayOfMonth.start.toString() : "0";
-					var dayOfMonthEnd = ranges.dayOfMonth.end ? ranges.dayOfMonth.end.toString() : "31";
-					var monthStart = ranges.month.start ? ranges.month.start.toString() : "0";
-					var monthEnd = ranges.month.end ? ranges.month.end.toString() : "11";
-					var dayOfWeekStart = ranges.dayOfWeek.start ? ranges.dayOfWeek.start.toString() : "0";
-					var dayOfWeekEnd = ranges.dayOfWeek.end ? ranges.dayOfWeek.end.toString() : "6";
-					var frequency = this.props.run.frequency.interval ? this.props.run.frequency.interval : "";
-
+					var run = this.props.run;
 					return (
 						<div>
 							<div>
-								<span>Minute: <DropDown min="0" max="59" value={minuteStart} /> to <DropDown min="0" max="59" value={minuteEnd} /> Every <DropDown min="1" max="59" freq={true} value={frequency} /> </span>
-								<span>Hour: <DropDown min="0" max="23" value={hourStart} /> to <DropDown min="0" max="23" value={hourEnd} /></span>
-								<span>Day/Month: <DropDown min="0" max="31" value={dayOfMonthStart} /> to <DropDown min="0" max="31" value={dayOfMonthEnd} /></span>
-								<span>Month: <DropDown min="0" max="11" value={monthStart} /> to <DropDown min="0" max="11" value={monthEnd} /></span>
-								<span>Day/Week: <DropDown min="0" max="6" value={dayOfWeekStart} /> to <DropDown min="0" max="6" value={dayOfWeekEnd} /></span>
-								<button className="btn btn-default">X</button>
+								<span>Minute: <DropDown min="0" max="59" value={run.minute.start} field="minute" subfield="start" changeRun={this.changeRun} /> to <DropDown min="0" max="59" value={run.minute.end} field="minute" subfield="end" changeRun={this.changeRun} /></span>
+								<span>Hour: <DropDown min="0" max="23" value={run.hour.start} field="hour" subfield="start" changeRun={this.changeRun} /> to <DropDown min="0" max="23" value={run.hour.end} field="hour" subfield="end" changeRun={this.changeRun} /></span>
+								<span>Day/Month: <DropDown min="0" max="31" value={run.dayOfMonth.start} field="dayOfMonth" subfield="start" changeRun={this.changeRun} /> to <DropDown min="0" max="31" value={run.dayOfMonth.end} field="dayOfMonth" subfield="end" changeRun={this.changeRun} /></span>
+								<span>Month: <DropDown min="0" max="11" value={run.month.start} field="month" subfield="start" changeRun={this.changeRun} /> to <DropDown min="0" max="11" value={run.month.end} field="month" subfield="end" changeRun={this.changeRun} /></span>
+								<span>Day/Week: <DropDown min="0" max="6" value={run.dayOfWeek.start} field="dayOfWeek" subfield="start" changeRun={this.changeRun} /> to <DropDown min="0" max="6" value={run.dayOfWeek.end} field="dayOfWeek" subfield="end" changeRun={this.changeRun} /></span>
+								<FrequencyDropDown frequency={this.props.run.frequency} changeRun={this.changeRun} />
+								<button className="btn btn-default" onClick={this.removeRun}>X</button>
 							</div>
+							<button className="btn btn-default" onClick={this.addRun}>Add New Run</button>
 						</div>
 					);
 				}
 			});
 
+			var FrequencyDropDown = React.createClass({
+				onChange: function(e) {
+					this.props.changeRun("frequency", "unit", e.target.value);
+				},
+				render: function() {
+					var freqMin;
+					var freqMax;
+					var noFreq = false;
+					if (this.props.frequency.unit == "minutes") {
+						freqMin = 2;
+						freqMax = 59;
+					} else if (this.props.frequency.unit == "hours") {
+						freqMin = 2;
+						freqMax = 23;
+					} else if (this.props.frequency.unit == "daysOfWeek") {
+						freqMin = 2;
+						freqMax = 6;
+					} else noFreq = true;
+					return (
+						<span>
+							Every: 
+							<DropDown min={freqMin} max={freqMax} value={this.props.frequency.interval} noFreq={noFreq} field="frequency" subfield="interval" />
+							<select value={this.props.frequency.unit} onChange={this.onChange}>
+								<option value="--">--</option>
+								<option value="minutes">minutes</option>
+								<option value="hours">hours</option>
+							</select>
+						</span>
+					);
+				}
+			});
 
 			var DropDown = React.createClass({
+				onChange: function(e) {
+					this.props.changeRun(this.props.field, this.props.subfield, e.target.value);
+				},
 				render: function() {
-
 					var options = [];
-					if (this.props.freq) options.push(<DropdownOption val={""} key={"--"} />)
-					for (var i = this.props.min; i <= this.props.max; i++) {
-						options.push(<DropdownOption desiredVal={this.props.value} val={i.toString()} key={i} />)
+					if (this.props.noFreq) options.push(<DropdownOption value={"--"} key={"--"} />);
+					else {
+						for (var i = this.props.min; i <= this.props.max; i++) {
+							options.push(<DropdownOption value={i.toString()} key={i} />)
+						}
 					}
-
 					return (
-						<select>
+						<select value={this.props.value} onChange={this.onChange}>
 							{options}
 						</select>
 					);
@@ -279,8 +321,7 @@
 
 			var DropdownOption = React.createClass({
 				render: function() {
-					var toReturn = (this.props.val==this.props.desiredVal) ? <option selected="selected">{this.props.val}</option> : <option>{this.props.val}</option>;
-					return toReturn;
+					return <option>{this.props.value}</option>;
 				}
 			});
 
@@ -299,7 +340,6 @@
 								for (var i=0; i<this.state.buildings.length; i++) {
 									if (this.state.buildings[i].namespace == buildingName) {
 										this.setState({building: this.state.buildings[i]});
-										console.log("this.state.building: ", this.state.building)
 										// call function to change from filterable table visible to singleBuilding visible. 
 										break;
 									}
@@ -336,13 +376,73 @@
 						error: function(xhr, status, err) {
 							console.error(this.props.url, status, err.toString());
 						}.bind(this)
-					})
+					});
+				},
+				handleUpdateBuilding: function(namespace) {
+					$.ajax({
+						type: 'PUT',
+						url: this.props.url + '/' + namespace,
+						data: this.state.building, 
+						dataType: 'json',
+						cache: false,
+						success: function(newBuilding) {
+							this.loadBuildingsFromServer(namespace);
+						}.bind(this),
+						error: function(xhr, status, err) {
+							console.error(this.props.url, status, err.toString());
+						}.bind(this)
+					});
+				},
+				addJob: function(jobName) {
+					var newJob = {
+							name: jobName,
+							runs: [{
+							frequency: {
+								interval: "--",
+								unit: "--"
+							},
+							minute: {
+								start: 0,
+								end: 0
+							},
+							hour: {
+								start: 0,
+								end: 0
+							},
+							dayOfMonth: {
+								start: 1,
+								end: 31
+							},
+							month: {
+								start: 0,
+								end: 11
+							},
+							dayOfWeek: {
+								start: 0,
+								end: 6
+							}}]
+						};
+					if (this.state.building.jobs) {
+						this.setState({building: this.state.building.jobs.push(newJob)});
+					} else {
+						var theBuilding = this.state.building;
+						theBuilding.jobs = [newJob];
+						this.setState({building: theBuilding});
+					}
+				},
+				handleRunChange: function(jobInd, runInd, newValue) {
+				console.log("gottem", jobInd, runInd, newValue)
+					var updatedBuilding = this.state.building;
+					updatedBuilding.jobs[jobInd].runs[runInd] = newValue;
+					this.setState({building: updatedBuilding});
+					var self = this;
+					setTimeout(function(){console.log("SELFSTATEBUILD ",self.state.building)}, 2000);
 				},
 				render: function() {
 					return (
 						<div>
 							<FilterableBuildingsTable buildings={this.state.buildings} handleAddBuilding={this.handleAddBuilding} />
-							<SingleBuilding building={this.state.building} />
+							<SingleBuilding building={this.state.building} addJob={this.addJob} handleRunChange={this.handleRunChange} handleUpdateBuilding={this.handleUpdateBuilding} />
 						</div>
 					);
 				}
@@ -358,7 +458,7 @@
 			}
 
 			function parseRunFrequency(freqObj) {
-				return freqObj.interval.toString() + " " + freqObj.unit;
+				return "Run every " + freqObj.interval.toString() + " " + freqObj.unit + "s";
 			}
 			
 		</script>
