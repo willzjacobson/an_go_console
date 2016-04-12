@@ -17,190 +17,6 @@
 		<div id="content"></div>
 		<script type="text/babel">
 
-			var DATA = [
-			  {
-			    "namespace" : "345_Park",
-			    "jobs" : [
-			      {
-			        "name": "morning-startup",
-			        "runs": [
-			          {
-			            "frequency" : {
-			              "interval" : 30,
-			              "unit" : "minute"
-			            },
-			            "unitRanges" : {
-			              "hour" : {
-			              "start" : 1,
-			              "end" : 4
-			            },
-			            "dayOfWeek" : {
-			              "start" : "mOn",
-			              "end" : 5
-			            }
-			          }
-			        },
-			        {
-			          "frequency" : {
-			            "interval" : 30,
-			            "unit" : "minute"
-			          },
-			          "unitRanges" : {
-			            "hour" : {
-			                "start" : 1,
-			                "end" : 4
-			            },
-			            "dayOfWeek" : {
-			                "start" : "mOn",
-			                "end" : 5
-			            }
-			          }
-			      }
-			    ]
-			},
-			{
-			    "name": "benchmarks",
-			    "runs": [
-			        {
-			            "frequency" : {
-			                "interval" : 30,
-			                "unit" : "minute"
-			            },
-			            "unitRanges" : {
-			                "hour" : {
-			                    "start" : 1,
-			                    "end" : 4
-			                },
-			                "dayOfWeek" : {
-			                    "start" : "mOn",
-			                    "end" : 5
-			                }
-			            }
-			        }
-			    ]
-			}
-			]
-			},
-			{
-			"namespace" : "355_Lex",
-			"jobs" : [
-			{
-			    "name": "morning-startup",
-			    "runs": [
-			        {
-			            "frequency" : {
-			                "interval" : 30,
-			                "unit" : "minute"
-			            },
-			            "unitRanges" : {
-			                "hour" : {
-			                    "start" : 1,
-			                    "end" : 4
-			                },
-			                "dayOfWeek" : {
-			                    "start" : "mOn",
-			                    "end" : 5
-			                }
-			            }
-			        }
-			    ]
-			},
-			{
-			    "name": "benchmarks",
-			    "runs": [
-			        {
-			            "frequency" : {
-			                "interval" : 30,
-			                "unit" : "minute"
-			            },
-			            "unitRanges" : {
-			                "hour" : {
-			                    "start" : 1,
-			                    "end" : 4
-			                },
-			                "dayOfWeek" : {
-			                    "start" : "mOn",
-			                    "end" : 5
-			                }
-			            }
-			          }
-			        ]
-			      }
-			    ]
-			  }
-			];
-			var BUILDING = {
-			"namespace" : "355_Lex",
-			"jobs" : [
-			{
-			    "name": "morning-startup",
-			    "runs": [
-			        {
-			            "frequency" : {
-			                "interval" : 30,
-			                "unit" : "minute"
-			            },
-			            "unitRanges" : {
-			                "minute" : {
-			                    "start" : 1,
-			                    "end" : 4
-			                },
-			                "hour" : {
-			                    "start" : 1,
-			                    "end" : 4
-			                },
-			                "dayOfWeek" : {
-			                    "start" : 1,
-			                    "end" : 5
-			                },
-			                "month" : {
-			                    "start" : 2,
-			                    "end" : 6
-			                },
-			                "dayOfMonth" : {
-			                    "start" : 1,
-			                    "end" : 4
-			                }
-			            }
-			        }
-			    ]
-			},
-			{
-			    "name": "benchmarks",
-			    "runs": [
-			        {
-			            "frequency" : {
-			                "interval" : 30,
-			                "unit" : "minute"
-			            },
-			            "unitRanges" : {
-			                "minute" : {
-			                    "start" : 1,
-			                    "end" : 4
-			                },
-			                "hour" : {
-			                    "start" : 1,
-			                    "end" : 4
-			                },
-			                "dayOfWeek" : {
-			                    "start" : 1,
-			                    "end" : 5
-			                },
-			                "month" : {
-			                    "start" : 2,
-			                    "end" : 6
-			                },
-			                "dayOfMonth" : {
-			                    "start" : 1,
-			                    "end" : 4
-			                }
-			            }
-			          }
-			        ]
-			      }
-			    ]
-			  };
-
 			// Master Table Components
 
 			var BuildingSearch = React.createClass({
@@ -223,18 +39,30 @@
 				}
 			});
 
-			var AddBuilding = React.createClass({
+			var AddBuildingForm = React.createClass({
+				getInitialState: function() {
+					return {buildingName: ''};
+				},
+				handleChange: function(e) {
+					this.setState({buildingName: e.target.value});
+				},
+				handleSubmit: function(e) {
+					e.preventDefault();
+					var buildingName = this.state.buildingName.trim();
+					if (buildingName.length === 0) return;
+					this.props.handleAddBuilding(this.state.buildingName);
+					this.setState({buildingName: ''});
+				},
 				render: function() {
 					return (
-						<div>
+						<form className="addBuildingForm" onSubmit={this.handleSubmit}>
 							<label for="add-building">Add a Building</label>
-							<div className="input-group">
-					      <input type="text" id="add-building" placeholder="Type building name" />
-					      <span class="input-group-btn">
-					        <button className="btn btn-info" type="button">Add!</button>
-					      </span>
-					    </div>
-				    </div>
+						    <input 
+						    	type="text" id="add-building" placeholder="Type building name" 
+						    	value={this.state.buildingName} onChange={this.handleChange}
+						    />
+						    <input value="Add" type="submit" />
+					    </form>
 					);
 				}
 			});
@@ -275,25 +103,28 @@
 
 			var BuildingsTable = React.createClass({
 		    render: function() {
-
 		    	var rows = [];
 		    	this.props.buildings.forEach(function(building, i) {
-		    		building.jobs.forEach(function(job, j) {
-		    			job.runs.forEach(function(run, k) {
-		    				rows.push(<TableRow
-		    					namespace = {building.namespace}
-		    					job = {job.name}
-		    					job = {job.name}
-		    					minute = {run.unitRanges.minute}
-		    					hour = {run.unitRanges.hour}
-		    					dayOfMonth = {run.unitRanges.dayOfMonth}
-		    					month = {run.unitRanges.month}
-		    					dayOfWeek = {run.unitRanges.dayOfWeek}
-		    					frequency = {run.frequency}
-		    					key = {i.toString() + j.toString() + k.toString()}
-		    				/>)
-		    			});
-		    		});
+		    		if (building.jobs) {
+			    		building.jobs.forEach(function(job, j) {
+			    			if (job.runs) {
+				    			job.runs.forEach(function(run, k) {
+				    				rows.push(<TableRow
+				    					namespace = {building.namespace}
+				    					job = {job.name}
+				    					job = {job.name}
+				    					minute = {run.unitRanges.minute}
+				    					hour = {run.unitRanges.hour}
+				    					dayOfMonth = {run.unitRanges.dayOfMonth}
+				    					month = {run.unitRanges.month}
+				    					dayOfWeek = {run.unitRanges.dayOfWeek}
+				    					frequency = {run.frequency}
+				    					key = {i.toString() + j.toString() + k.toString()}
+				    				/>)
+				    			});
+			    			}
+			    		});
+		    		}
 		    	});
 
 		    	return (
@@ -316,7 +147,7 @@
 					return (
 						<div className="container">
 							<h1>All Buildings and Scheduled Analytics Jobs</h1>
-							<AddBuilding />
+							<AddBuildingForm handleAddBuilding={this.props.handleAddBuilding} />
 							<BuildingSearch />
 							<JobSearch />
 							<BuildingsTable buildings = {this.props.buildings} />
@@ -327,31 +158,68 @@
 
 
 			// Single Building Components
-			var Building = React.createClass({
+			var SingleBuilding = React.createClass({
 				render: function() {
 
 					var jobs = [];
-					this.props.building.jobs.forEach(function(job, i) {
-						jobs.push(<Job job={job} key={i} />);
-					});
-
+					var namespace = "No Building Info";
+					if (this.props.building) {
+						namespace = this.props.building.namespace;
+						if (this.props.building.jobs && this.props.building.jobs.length) {
+							this.props.building.jobs.forEach(function(job, i) {
+								jobs.push(<Job job={job} key={i} />);
+							});
+						}	
+					}
 					return (
-						<div>
-							<h2>{this.props.building.namespace}</h2>
+						<div className="container">
+							<h2>{namespace}</h2>
 							{jobs}
+							<AddJob building={this.props.building} />
 						</div>
 					);
 				}
 			});
 
+			var AddJob = React.createClass({
+				getInitialState: function() {
+					return {value:"select"};
+				},
+				change: function(e) {
+					this.setState({value: e.target.value});
+				},
+				submit: function(e) {
+					e.preventDefault();
+					// Propogate up to WholeThing to push in new job of type x with a new run (straight json), and updates state.building
+					// hook up so changing run info changes state
+					// add 'add run' button to add a new run for this job
+					// make so save button sends post to update buildings, and switches view
+
+					console.log('creating job');
+				},
+				render: function() {
+					if (this.props.building && !this.props.building.jobs || this.props.building.jobs && this.props.building.jobs.length < 2) {
+						return (
+							<form onSubmit={this.submit}>
+								<label for="select-job">Select a Job</label>
+								<select id="select-job" value="this.state.value" onChange={this.change}>
+									<option value="select">select</option>
+									<option value="morning-startup">morning-startup</option>
+									<option value="benchmarks">benchmarks</option>
+								</select>
+								<input type="submit" value="Create Job" />
+							</form>
+						);
+					} else return <span></span>
+				}
+			});
+
 			var Job = React.createClass({
 				render: function() {
-
 					var runs = [];
 					this.props.job.runs.forEach(function(run, i) {
 						runs.push(<Run run={run} key={i} />);
 					});
-
 					return (
 						<div>
 							<h3>{this.props.job.name}</h3>
@@ -416,12 +284,73 @@
 				}
 			});
 
+			var WholeThing = React.createClass({
+				getInitialState: function() {
+					return {buildings: [], building: {}};
+				},
+				loadBuildingsFromServer: function(buildingName) {
+					$.ajax({
+						url: this.props.url,
+						dataType: 'json',
+						cache: false,
+						success: function(buildings) {
+							this.setState({buildings: buildings});
+							if (buildingName) {
+								for (var i=0; i<this.state.buildings.length; i++) {
+									if (this.state.buildings[i].namespace == buildingName) {
+										this.setState({building: this.state.buildings[i]});
+										console.log("this.state.building: ", this.state.building)
+										// call function to change from filterable table visible to singleBuilding visible. 
+										break;
+									}
+								}
+							}
+						}.bind(this),
+						error: function(xhr, status, err) {
+							console.error(this.props.url, status, err.toString());
+						}.bind(this)
+					});
+				},
+				componentDidMount: function() {
+					this.loadBuildingsFromServer();
+					setInterval(this.loadBuildingsFromServer, this.props.pollInterval);
+				},
+				handleAddBuilding: function(buildingName) {
+					// If building exists, show it. Otherwise, create it and show it
+					for (var i=0; i<this.state.buildings.length; i++) {
+						if (this.state.buildings[i].namespace == buildingName) {
+							this.setState({building: this.state.buildings[i]});
+							// call function to change from filterable table visible to singleBuilding visible. 
+							return;
+						}
+					}
+					$.ajax({
+						type: 'POST',
+						url: this.props.url,
+						data: {namespace: buildingName}, // Only save building name for now
+						dataType: 'json',
+						cache: false,
+						success: function(newBuilding) {
+							this.loadBuildingsFromServer(buildingName);
+						}.bind(this),
+						error: function(xhr, status, err) {
+							console.error(this.props.url, status, err.toString());
+						}.bind(this)
+					})
+				},
+				render: function() {
+					return (
+						<div>
+							<FilterableBuildingsTable buildings={this.state.buildings} handleAddBuilding={this.handleAddBuilding} />
+							<SingleBuilding building={this.state.building} />
+						</div>
+					);
+				}
+			});
+
 			ReactDOM.render(
-				<div>
-				<Building building={BUILDING} />
-			  <FilterableBuildingsTable buildings = {DATA} />
-			  </div>,
-			  document.getElementById('content')
+				<WholeThing url="/api/buildings" pollInterval={2000} />,
+				document.getElementById('content')
 			);
 
 			function parseUnitRange(range) {
