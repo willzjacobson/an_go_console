@@ -68,17 +68,11 @@
 			});
 
 			var TableRowHead = React.createClass({
-				sortByNamespace: function() {
-					this.props.sort("namespace");
-				},
-				sortByJob: function() {
-					this.props.sort("job");
-				},
 				render: function() {
 					return (
 						<tr>
-							<th className="pointer" onClick={this.sortByNamespace}>Building</th>
-							<th className="pointer" onClick={this.sortByJob}>Job</th>
+							<th>Building</th>
+							<th>Job</th>
 							<th>Minutes</th>
 							<th>Hours</th>
 							<th>Day/Month</th>
@@ -108,13 +102,7 @@
 			});
 
 			var BuildingsTable = React.createClass({
-				getInitialState: function() {
-					return {rows: []};
-				},
-				componentWillReceiveProps: function() {
-					if (this.state.rows.length == 0) this.buildInitialRows();
-				},
-				buildInitialRows: function() {
+				buildRows: function() {
 					var rows = [];
 		    	this.props.buildings.forEach(function(building, i) {
 		    		if (building.jobs) {
@@ -136,41 +124,38 @@
 			    			}
 			    		});
 		    		}
-		    	})
-		    	this.setState({rows: rows});
-		    	console.log('set the state')
-				},
-				sort: function(byWhat) {
-					var rows = this.state.rows;
-					rows = rows.sort(function(a,b) {
-						return a[byWhat] - b[byWhat];
-					});
-					this.setState({rows: rows});
+		    	});
+		    	rows.sort(function(a,b) {
+		    		if (a.namespace < b.namespace) return -1;
+		    		if (a.namespace > b.namespace) return 1;
+		    		return 0;
+		    	});
+		    	return rows;
 				},
 		    	render: function() {
-		    	console.log("PRRRPPPSSSS in render", this.props)
-			    	var rows = [];
-			    	for (var i = 0; i < this.state.rows.length; i++) {
-	    				rows.push(<TableRow
-	    					namespace = {this.state.rows[i].namespace}
-	    					job = {this.state.rows[i].name}
-	    					minute = {this.state.rows[i].minute}
-	    					hour = {this.state.rows[i].hour}
-	    					dayOfMonth = {this.state.rows[i].dayOfMonth}
-	    					month = {this.state.rows[i].month}
-	    					dayOfWeek = {this.state.rows[i].dayOfWeek}
-	    					frequency = {this.state.rows[i].frequency}
-	    					key = {this.state.rows[i].key}
-	    				/>);
-					  }
+			    	var oldRows = this.buildRows();
+			    	var newRows = [];
+		    		for (var i = 0; i < oldRows.length; i++) {
+		    			newRows.push(<TableRow
+								namespace= {oldRows[i].namespace}
+	    					job= {oldRows[i].job}
+	    					minute= {oldRows[i].minute}
+	    					hour= {oldRows[i].hour}
+	    					dayOfMonth= {oldRows[i].dayOfMonth}
+	    					month= {oldRows[i].month}
+	    					dayOfWeek= {oldRows[i].dayOfWeek}
+	    					frequency= {oldRows[i].frequency}
+	    					key= {oldRows[i].key}
+							/>)
+		    		}
 			    	return (
 		      		<div className="buildingsTable">
 		        		<table>
 		        			<thead>
-		        				<TableRowHead sort={this.sort} />
+		        				<TableRowHead />
 		        			</thead>
 		        			<tbody>
-		        				{rows}
+		        				{newRows}
 		        			</tbody>
 		        		</table>
 		      		</div>
