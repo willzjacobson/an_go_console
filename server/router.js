@@ -38,7 +38,7 @@ router.delete('/:namespace', function(req, res, next) {
 	dbProm.then(function(db) {
 		db.collection('buildings').deleteOne({namespace: req.params.namespace}, function(err, object) {
 			if (err) throw err;
-			res.send('Doc deleted');
+			res.send('Building deleted');
 		});
 	})
 	.then(null, next);

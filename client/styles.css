@@ -1,3 +1,7 @@
+body {
+	margin-top: 20px;
+}
+
 table {
 	margin: 20px 0;
 }
@@ -15,6 +19,38 @@ span {
 	margin: 0 10px;
 }
 
-.pointer: {
+.inline {
+	display: inline;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.margtopbot-twenty {
+	margin: 20px 0;
+}
+
+.margtopbot-ten {
+	margin: 10px 0;
+}
+
+.margtopbot-five {
+	margin: 5px 0;
+}
+
+.marg-right-five {
+	margin-right: 5px;
+}
+
+.marg-left {
+	margin-left: 3px;
+}
+
+.pointer {
 	cursor: pointer;
 }
+.pointer:hover {
+	background-color: #d9d3e8;
+}
+
