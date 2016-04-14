@@ -19,26 +19,6 @@
 
 			// MASTER TABLE COMPONENTS
 
-			var BuildingSearch = React.createClass({
-				render: function() {
-					return (
-						<div className="margtopbot-five input-group">
-			    		<input type="text" className="form-control" placeholder="Filter By Building Name" />
-			    	</div>
-					);
-				}
-			});
-
-			var JobSearch = React.createClass({
-				render: function() {
-					return (
-						<div className="margtopbot-five input-group">
-				      <input type="text" className="form-control" placeholder="Filter By Job Name" />
-				    </div>
-					);
-				}
-			});
-
 			var AddBuildingForm = React.createClass({
 				getInitialState: function() {
 					return {buildingName: ''};
@@ -64,6 +44,20 @@
 					    />
 					    <input className="btn-info" value="Find or Add" type="submit" />
 				    </form>
+					);
+				}
+			});
+
+			var Filters = React.createClass({
+				handleChange: function() {
+					this.props.handleFilterInput(this.refs.namespaceFilter.value, this.refs.jobFilter.value);
+				},
+				render: function() {
+					return (
+						<div className="margtopbot-five input-group">
+			    		<input className="margtopbot-five form-control" type="text" placeholder="Filter By Building Name" value={this.props.namespaceFilter} ref="namespaceFilter" onChange={this.handleChange} />
+			    		<input className="margtopbot-five form-control" type="text" placeholder="Filter By Job Name" value={this.props.jobFilter} ref="jobFilter" onChange={this.handleChange} />
+			    	</div>
 					);
 				}
 			});
@@ -116,19 +110,22 @@
 			    		building.jobs.forEach(function(job, j) {
 			    			if (job.runs) {
 				    			job.runs.forEach(function(run, k) {
-				    				rows.push(<TableRow
-											namespace= {building.namespace}
-				    					job= {job.name}
-				    					minute= {run.minute}
-				    					hour= {run.hour}
-				    					dayOfMonth= {run.dayOfMonth}
-				    					month= {run.month}
-				    					dayOfWeek= {run.dayOfWeek}
-				    					frequency= {run.frequency}
-				    					key= {i.toString() + j.toString() + k.toString()}
-				    					changeStateBuilding= {self.props.changeStateBuilding}
-				    					toggleView= {self.props.toggleView}
-										/>);
+				    				if ( (self.props.namespaceFilter.length == 0 || building.namespace.indexOf(self.props.namespaceFilter) >= 0) &&
+				    					(self.props.jobFilter.length == 0 || job.name.indexOf(self.props.jobFilter) >= 0) ) {
+					    				rows.push(<TableRow
+												namespace= {building.namespace}
+					    					job= {job.name}
+					    					minute= {run.minute}
+					    					hour= {run.hour}
+					    					dayOfMonth= {run.dayOfMonth}
+					    					month= {run.month}
+					    					dayOfWeek= {run.dayOfWeek}
+					    					frequency= {run.frequency}
+					    					key= {i.toString() + j.toString() + k.toString()}
+					    					changeStateBuilding= {self.props.changeStateBuilding}
+					    					toggleView= {self.props.toggleView}
+											/>);
+				    				}
 				    			});
 			    			}
 			    		});
@@ -155,14 +152,19 @@
 			});
 
 			var FilterableBuildingsTable = React.createClass({
+				getInitialState: function() {
+					return ({namespaceFilter: "", jobFilter: ""});
+				},
+				handleFilterInput: function(namespaceQuery, jobQuery) {
+					this.setState({namespaceFilter: namespaceQuery, jobFilter: jobQuery});
+				},
 				render: function() {
 					return (
 						<div>
 							<h1 className="margtopbot-twenty">All Scheduled Analytics Jobs</h1>
 							<AddBuildingForm handleAddBuilding={this.props.handleAddBuilding} toggleView={this.props.toggleView} />
-							<BuildingSearch />
-							<JobSearch />
-							<BuildingsTable buildings= {this.props.buildings} changeStateBuilding={this.props.changeStateBuilding} toggleView={this.props.toggleView}/>
+							<Filters handleFilterInput={this.handleFilterInput} namespaceFilter={this.state.namespaceFilter} jobFilter={this.state.jobFilter} />
+							<BuildingsTable buildings={this.props.buildings} changeStateBuilding={this.props.changeStateBuilding} toggleView={this.props.toggleView} namespaceFilter={this.state.namespaceFilter} jobFilter={this.state.jobFilter}/>
 						</div>
 					);
 				}
@@ -172,24 +174,37 @@
 			// SINGLE BUILDING COMPONENTS
 
 			var SingleBuilding = React.createClass({
+				getInitialState: function() {
+					return {err: null};
+				},
 				saveBuilding: function() {
-					if (Number(newValue.minute.start) > Number(newValue.minute.end)) return this.showErr("minutes");
-					if (Number(newValue.hour.start) > Number(newValue.hour.end)) return this.showErr("hours");
-					if (Number(newValue.dayOfMonth.start) > Number(newValue.dayOfMonth.end)) return this.showErr("days of the month");
-					if (Number(newValue.month.start) > Number(newValue.month.end)) return this.showErr("months");
-					if (Number(newValue.dayOfWeek.start) > Number(newValue.dayOfWeek.end)) return this.showErr("days of the week");
-					var updatedBuilding = this.state.building;
+					var self = this;
+					if (this.props.building.jobs) {
+						for (var i = 0; i < this.props.building.jobs.length; i++) {
+							if (this.props.building.jobs[i].runs.length) {
+								for (var j = 0; j < this.props.building.jobs[i].runs.length; j++) {
+									var run = this.props.building.jobs[i].runs[j];
+									if (Number(run.minute.start) > Number(run.minute.end)) return self.showErr("minutes");
+									if (Number(run.hour.start) > Number(run.hour.end)) return this.showErr("hours");
+									if (Number(run.dayOfMonth.start) > Number(run.dayOfMonth.end)) return this.showErr("days of the month");
+									if (Number(run.month.start) > Number(run.month.end)) return this.showErr("months");
+									if (Number(run.dayOfWeek.start) > Number(run.dayOfWeek.end)) return this.showErr("days of the week");
+								}
+							}
+						}
+					}
 					this.props.handleUpdateBuilding(this.props.building.namespace);
 					this.props.toggleView();
+					this.setState({err: null});
 				},
 				deleteBuilding: function() {
 					this.props.deleteBuilding(this.props.building.namespace);
+					this.setState({err: null});
 				},
 				showErr: function(errType) {
-					console.log("FUCKED UP", errType)
 					this.setState({err: errType});
 					setTimeout(function() {
-						//this.setState({err: null});
+						this.setState({err: null});
 					}.bind(this), 5000);
 				},
 				render: function() {
@@ -202,7 +217,7 @@
 							var theJobs = this.props.building.jobs
 							theJobs.sort(function(a, b) {
 								if (a.name < b.name) return -1;
-								if (a.name > b.name) return -1;
+								if (a.name > b.name) return 1;
 								return 0;
 							});
 							theJobs.forEach(function(job, i) {
@@ -210,18 +225,18 @@
 							});
 						}	
 					}
-					//var errMsg = this.state.err ? <div>awwww, fucked up with {this.state.err}</div> : null;
+					var errMsg = this.state.err ? <div className="err">Please insure end time is great than start time for all {this.state.err} ranges</div> : null;
 					return (
 						<div>
 							<h2 className="inline">{namespace}</h2>
 							<button className="btn-danger pull-right" onClick={this.deleteBuilding}>Delete Building</button>
-							
 							{jobs}
 							<AddJob building={this.props.building} addJob={this.props.addJob} />
 							<div className="margtopbot-five">
 								<button className="btn-info marg-right-five" onClick={this.saveBuilding}>Update Building</button>
 								<button className="btn-default" onClick={this.props.toggleView}>Cancel</button>
 							</div>
+							{errMsg}
 						</div>
 					);
 				}
@@ -513,6 +528,7 @@
 					this.setState({building: updatedBuilding});
 				},
 				handleRunChange: function(jobInd, runInd, newValue) {
+					var updatedBuilding = this.state.building;
 					updatedBuilding.jobs[jobInd].runs[runInd] = newValue;
 					this.setState({building: updatedBuilding});
 				},

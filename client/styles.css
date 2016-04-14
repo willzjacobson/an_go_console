@@ -54,3 +54,12 @@ span {
 	background-color: #d9d3e8;
 }
 
+.err {
+	background-color: #ceabab;
+	text-align: center;
+	padding: 15px;
+	font-size: 16px;
+	font-weight: bold;
+	margin: 25px 0;
+}
+
